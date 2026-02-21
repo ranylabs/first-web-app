@@ -1,22 +1,527 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>My First App</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JRCC Operations Dashboard</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
+
+    :root {
+      --bg: #080b12;
+      --bg-2: #0c1220;
+      --panel: #0f1628;
+      --panel-2: #111b32;
+      --edge: #1b2b4a;
+      --glow: #5bd4ff;
+      --accent: #7dffcf;
+      --warn: #ffb86b;
+      --danger: #ff6b6b;
+      --text: #e8f0ff;
+      --muted: #9bb0d1;
+      --mono: "IBM Plex Mono", "Space Grotesk", monospace;
+      --sans: "Space Grotesk", "IBM Plex Mono", sans-serif;
+      --radius: 16px;
+      --shadow: 0 20px 60px rgba(3, 10, 25, 0.55);
+      --grid-gap: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 80% -10%, rgba(91, 212, 255, 0.15), transparent 60%),
+        radial-gradient(800px 500px at 10% 10%, rgba(125, 255, 207, 0.12), transparent 60%),
+        linear-gradient(180deg, #05070c 0%, #0b1020 100%);
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100%;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, #0b1224 0%, #0a0f1c 100%);
+      border-right: 1px solid var(--edge);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(15, 22, 40, 0.8);
+      border: 1px solid rgba(91, 212, 255, 0.2);
+      box-shadow: inset 0 0 30px rgba(91, 212, 255, 0.08);
+    }
+
+    .brand-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent), var(--glow));
+      box-shadow: 0 0 14px rgba(125, 255, 207, 0.7);
+    }
+
+    .brand h1 {
+      font-size: 16px;
+      margin: 0;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .status-chip {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(17, 27, 50, 0.9);
+      border: 1px solid var(--edge);
+      border-radius: 12px;
+      padding: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav-item {
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    .nav-item.active {
+      color: var(--text);
+      background: rgba(17, 27, 50, 0.7);
+      border-color: rgba(91, 212, 255, 0.35);
+      box-shadow: inset 0 0 25px rgba(91, 212, 255, 0.1);
+    }
+
+    .nav-item span {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--glow);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(125, 255, 207, 0.2);
+      background: rgba(12, 18, 32, 0.9);
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: var(--grid-gap);
+      padding: 24px 28px 28px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: rgba(15, 22, 40, 0.75);
+      border: 1px solid var(--edge);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .topbar .title {
+      display: grid;
+      gap: 4px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .topbar p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: 1px solid rgba(91, 212, 255, 0.3);
+      background: rgba(10, 16, 30, 0.7);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: var(--grid-gap);
+    }
+
+    .card {
+      background: rgba(15, 22, 40, 0.9);
+      border: 1px solid rgba(27, 43, 74, 0.9);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(500px 120px at 10% 0%, rgba(91, 212, 255, 0.12), transparent 60%);
+      pointer-events: none;
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .metric {
+      display: grid;
+      gap: 8px;
+    }
+
+    .metric strong {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .metric span {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .status-list {
+      display: grid;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(27, 43, 74, 0.6);
+    }
+
+    .status-row:last-child { border-bottom: none; }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-family: var(--mono);
+      border: 1px solid transparent;
+    }
+
+    .badge.live { color: var(--accent); border-color: rgba(125, 255, 207, 0.4); }
+    .badge.warn { color: var(--warn); border-color: rgba(255, 184, 107, 0.4); }
+    .badge.crit { color: var(--danger); border-color: rgba(255, 107, 107, 0.4); }
+
+    .map {
+      min-height: 260px;
+      background:
+        linear-gradient(135deg, rgba(91, 212, 255, 0.15), transparent 40%),
+        repeating-linear-gradient(0deg, rgba(91, 212, 255, 0.06) 0px, rgba(91, 212, 255, 0.06) 1px, transparent 1px, transparent 18px),
+        repeating-linear-gradient(90deg, rgba(91, 212, 255, 0.06) 0px, rgba(91, 212, 255, 0.06) 1px, transparent 1px, transparent 18px);
+      border-radius: 14px;
+      border: 1px dashed rgba(91, 212, 255, 0.3);
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .ai-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .ai-message {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(10, 16, 30, 0.7);
+      border: 1px solid rgba(91, 212, 255, 0.25);
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .ai-message small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .input-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(27, 43, 74, 0.9);
+      background: rgba(9, 14, 26, 0.9);
+    }
+
+    .input-bar input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 13px;
+      font-family: var(--mono);
+      outline: none;
+    }
+
+    .button {
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(125, 255, 207, 0.5);
+      background: linear-gradient(120deg, rgba(125, 255, 207, 0.2), rgba(91, 212, 255, 0.2));
+      color: var(--text);
+      font-size: 12px;
+      font-family: var(--mono);
+      cursor: pointer;
+    }
+
+    .footer-strip {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    @media (max-width: 1100px) {
+      body { grid-template-columns: 1fr; }
+      .sidebar { position: sticky; top: 0; z-index: 10; flex-direction: row; flex-wrap: wrap; }
+      .sidebar-footer { display: none; }
+      .main { padding: 18px; }
+    }
+
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+      .span-3, .span-4, .span-5, .span-7, .span-8, .span-12 { grid-column: span 1; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+      .topbar-actions { flex-wrap: wrap; }
+    }
+  </style>
 </head>
 
-<body style="font-family:Arial;text-align:center;margin-top:50px;">
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <h1>JRCC Ops Core</h1>
+    </div>
 
-<h1>ðŸš€ My First Web App</h1>
+    <div class="status-chip">
+      <div>
+        <div>System</div>
+        <strong>Nominal</strong>
+      </div>
+      <div>
+        <div>Sync</div>
+        <strong id="syncTime">00:00:00Z</strong>
+      </div>
+    </div>
 
-<p>This is my first project using VSCode + Git + AI</p>
+    <nav>
+      <div class="nav-item active">Mission Overview <span>01</span></div>
+      <div class="nav-item">Response Matrix <span>02</span></div>
+      <div class="nav-item">Fleet Coordination <span>03</span></div>
+      <div class="nav-item">Comms &amp; Signals <span>04</span></div>
+      <div class="nav-item">AI Co-Pilot <span>05</span></div>
+      <div class="nav-item">Incident Archives <span>06</span></div>
+    </nav>
 
-<button onclick="sayHello()">Click Me</button>
+    <div class="sidebar-footer">
+      Live operational intelligence for Joint Rescue Coordination Center.
+      Prioritize multi-domain situational awareness.
+    </div>
+  </aside>
 
-<script>
-function sayHello(){
-  alert("It works! ðŸŽ‰");
-}
-</script>
+  <main class="main">
+    <section class="topbar">
+      <div class="title">
+        <h2>JRCC Operations Dashboard</h2>
+        <p>AI-fused coordination across maritime, air, and ground assets</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="pill">Threat Level: Low</div>
+        <div class="pill">Uptime: 99.98%</div>
+        <div class="pill">AI Models: 3 Online</div>
+      </div>
+    </section>
 
+    <section class="grid">
+      <div class="card span-3">
+        <h3>Active Missions</h3>
+        <div class="metric">
+          <strong>12</strong>
+          <span>+2 in last 2 hours</span>
+        </div>
+      </div>
+      <div class="card span-3">
+        <h3>Assets Deployed</h3>
+        <div class="metric">
+          <strong>38</strong>
+          <span>Air 12 · Maritime 19 · Ground 7</span>
+        </div>
+      </div>
+      <div class="card span-3">
+        <h3>Weather Risk</h3>
+        <div class="metric">
+          <strong>Moderate</strong>
+          <span>Wind shear in Sector C7</span>
+        </div>
+      </div>
+      <div class="card span-3">
+        <h3>AI Confidence</h3>
+        <div class="metric">
+          <strong>94%</strong>
+          <span>Sensor fusion validated</span>
+        </div>
+      </div>
+
+      <div class="card span-7">
+        <h3>Operational Theater</h3>
+        <div class="map">Tactical map feed placeholder</div>
+        <div class="footer-strip" style="margin-top: 12px;">
+          <div>Geo-fence: Active</div>
+          <div>SatLink: Stable</div>
+          <div>Latency: 28 ms</div>
+        </div>
+      </div>
+
+      <div class="card span-5">
+        <h3>Live Status</h3>
+        <div class="status-list">
+          <div class="status-row">
+            <div>Search Grid Alpha</div>
+            <span class="badge live">Live</span>
+          </div>
+          <div class="status-row">
+            <div>Medical Evac Team 3</div>
+            <span class="badge warn">Delay</span>
+          </div>
+          <div class="status-row">
+            <div>Comms Relay Node 7</div>
+            <span class="badge live">Live</span>
+          </div>
+          <div class="status-row">
+            <div>Unmanned Patrol Delta</div>
+            <span class="badge crit">Critical</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card span-8">
+        <h3>AI Co-Pilot Brief</h3>
+        <div class="ai-panel">
+          <div class="ai-message">
+            1) Reroute maritime assets to Sector C7 due to unexpected currents.
+            2) Prioritize medical evac for Incident 221B based on survivability model.
+            3) Escalate comms redundancy in coastal corridor.
+            <small>Last update: <span id="briefTime">00:00:00Z</span></small>
+          </div>
+          <div class="input-bar">
+            <input type="text" placeholder="Ask JRCC AI for a tactical summary..." />
+            <button class="button">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card span-4">
+        <h3>Alert Queue</h3>
+        <div class="status-list">
+          <div class="status-row">
+            <div>Beacon drift anomaly</div>
+            <span class="badge warn">Medium</span>
+          </div>
+          <div class="status-row">
+            <div>Thermal scan spike</div>
+            <span class="badge crit">High</span>
+          </div>
+          <div class="status-row">
+            <div>Satellite uplink</div>
+            <span class="badge live">Cleared</span>
+          </div>
+          <div class="status-row">
+            <div>Rescue channel noise</div>
+            <span class="badge warn">Medium</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function updateTimes() {
+      const now = new Date();
+      const utc = now.toISOString().split("T")[1].replace("Z", "Z");
+      const time = utc.slice(0, 8) + "Z";
+      const sync = document.getElementById("syncTime");
+      const brief = document.getElementById("briefTime");
+      if (sync) sync.textContent = time;
+      if (brief) brief.textContent = time;
+    }
+
+    updateTimes();
+    setInterval(updateTimes, 1000);
+  </script>
 </body>
 </html>
